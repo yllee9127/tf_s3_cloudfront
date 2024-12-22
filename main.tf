@@ -1,5 +1,11 @@
+locals {
+  s3_origin_id = "ylS3Origin"
+  resource_prefix = "yls3"
+}
+
 resource "aws_s3_bucket" "static_bucket" {
- bucket = "yls3.sctp-sandbox.com"
+ # bucket = "yls3.sctp-sandbox.com"
+ bucket = "${local.resource_prefix}.sctp-sandbox.com"
  force_destroy = true
 }
 
@@ -9,10 +15,6 @@ resource "aws_s3_bucket_acl" "static_bucket_acl" {
   acl    = "private"
 }
 */
-
-locals {
-  s3_origin_id = "ylS3Origin"
-}
 
 resource "aws_s3_bucket_public_access_block" "enable_public_access" {
   bucket = aws_s3_bucket.static_bucket.id
@@ -40,7 +42,8 @@ resource "aws_s3_bucket_website_configuration" "website" {
 
 resource "aws_route53_record" "www" {
  zone_id = data.aws_route53_zone.sctp_zone.zone_id
- name = "yls3" # Bucket prefix before sctp-sandbox.com
+ # name = "yls3" # Bucket prefix before sctp-sandbox.com
+ name = "${local.resource_prefix}"
  type = "A"
 
 /*
@@ -87,7 +90,8 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   }
   */
 
-  aliases = ["yls3.sctp-sandbox.com"]
+  # aliases = ["yls3.sctp-sandbox.com"]
+  aliases = ["${local.resource_prefix}.sctp-sandbox.com"]
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
@@ -188,7 +192,7 @@ module "acm" {
     aws = aws.us-east-1
   }
 
-  domain_name = "yls3.sctp-sandbox.com"
+  domain_name = "${local.resource_prefix}.sctp-sandbox.com"
   #zone_id     = "Z266PL4W4W6MSG"
   # zone_id = "Z00541411T1NGPV97B5C0"
   zone_id = data.aws_route53_zone.sctp_zone.zone_id
@@ -197,7 +201,7 @@ module "acm" {
   wait_for_validation = true
 
   tags = {
-    Name = "yls3.sctp-sandbox.com"
+    Name = "${local.resource_prefix}.sctp-sandbox.com"
   }
 }
 
