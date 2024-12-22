@@ -77,6 +77,8 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   comment             = "YL S3 CloudFront"
   default_root_object = "index.html"
 
+  web_acl_id = aws_wafv2_web_acl.yls3-cloudfront-waf.arn
+
 /*
   logging_config {
     include_cookies = false
